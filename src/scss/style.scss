@@ -1,1 +1,21 @@
 @import "spectre";
+
+body {
+  font-size: 2em;
+}
+
+.app{
+  .navbar {
+    background: #ccc;
+    padding: 1em;
+
+    section{
+      a {
+        padding: 0.5em;
+      }
+    }
+  }
+  .router-view{
+    padding: 1em;
+  }
+}

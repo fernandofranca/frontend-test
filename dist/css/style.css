@@ -4367,4 +4367,15 @@ code {
 .timeline .timeline-item .timeline-icon.icon-lg::before {
   content: none; }
 
+body {
+  font-size: 2em; }
+
+.app .navbar {
+  background: #ccc;
+  padding: 1em; }
+  .app .navbar section a {
+    padding: 0.5em; }
+.app .router-view {
+  padding: 1em; }
+
 /*# sourceMappingURL=style.css.map */

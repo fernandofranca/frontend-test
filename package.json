@@ -32,6 +32,7 @@
   "dependencies": {
     "axios": "0.16.2",
     "spectre.css": "0.2.14",
-    "vue": "2.4.2"
+    "vue": "2.4.2",
+    "vue-router": "2.7.0"
   }
 }
