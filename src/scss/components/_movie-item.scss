@@ -3,6 +3,7 @@
 
   .title {
     margin-top: -6px;
+    cursor: pointer;
   }
   .director {
     font-weight: normal;
@@ -23,5 +24,8 @@
       text-decoration: none;
       padding-right: 1em;
     }
+  }
+  .poster {
+    margin-bottom: 1em;
   }
 }

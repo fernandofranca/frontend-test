@@ -8,8 +8,9 @@ const searchService = require('./services/SearchService.js');
 
 // Componentes
 const SearchBar = require('./components/SearchBar.js');
-const Modal = require('./components/ui/Modal.js');
+const Identity = require('./components/ui/Identity.js');
 const ProgressWait = require('./components/ui/ProgressWait.js');
+const FavoritosView = require('./components/FavoritosView.js');
 
 Vue.use(VueRouter);
 
@@ -53,32 +54,17 @@ const app = new Vue({
         this.searchResult = result;
 
         if (result.type==='title'){
-          
-          // Verifica se esta na rota esperada antes de modificar, 
-          // evitando duplicar entradas no history 
-          let isAtExpectedRoute = router.currentRoute.fullPath===`/movie/${result.query}`;
-          if (!isAtExpectedRoute) router.push({ path: `/movie/${result.query}`});
-
+          this.gotoResourceRoute('movie', result.query);
           eventHub.$emit("movie-info", this.searchResult); // Emite o evento que a view aguarda
         }
 
         if (result.type==='director'){
-          
-          // Verifica se esta na rota esperada antes de modificar, 
-          // evitando duplicar entradas no history 
-          let isAtExpectedRoute = router.currentRoute.fullPath===`/director/${result.query}`;
-          if (!isAtExpectedRoute) router.push({ path: `/director/${result.query}`});
-
+          this.gotoResourceRoute('director', result.query);
           eventHub.$emit("director-info", this.searchResult); // Emite o evento que a view aguarda
         }
 
         if (result.type==='actor'){
-          
-          // Verifica se esta na rota esperada antes de modificar, 
-          // evitando duplicar entradas no history 
-          let isAtExpectedRoute = router.currentRoute.fullPath===`/actor/${result.query}`;
-          if (!isAtExpectedRoute) router.push({ path: `/actor/${result.query}`});
-
+          this.gotoResourceRoute('actor', result.query);
           eventHub.$emit("actor-info", this.searchResult); // Emite o evento que a view aguarda
         }
       });
@@ -89,6 +75,7 @@ const app = new Vue({
       // Do contrário inicia uma busca
       eventHub.$on("get-movie-info", (data)=> {
         if (this.searchResult && this.searchResult.query===data.title){
+          this.gotoResourceRoute('movie', data.title);
           eventHub.$emit("movie-info", this.searchResult);
         } else {
           this.search('title', data.title);
@@ -97,6 +84,7 @@ const app = new Vue({
 
       eventHub.$on("get-director-info", (data)=> {
         if (this.searchResult && this.searchResult.query===data.name){
+          this.gotoResourceRoute('director', data.name);
           eventHub.$emit("director-info", this.searchResult);
         } else {
           this.search('director', data.name);
@@ -105,6 +93,7 @@ const app = new Vue({
 
       eventHub.$on("get-actor-info", (data)=> {
         if (this.searchResult && this.searchResult.query===data.name){
+          this.gotoResourceRoute('actor', data.name);
           eventHub.$emit("actor-info", this.searchResult);
         } else {
           this.search('actor', data.name);
@@ -113,6 +102,10 @@ const app = new Vue({
     },
     search: function (type, text) {
       eventHub.$emit("search-start", {type, text});
+    },
+    gotoResourceRoute: function (type, query) {
+      let isAtExpectedRoute = router.currentRoute.fullPath===`/${type}/${query}`;
+      if (!isAtExpectedRoute) router.push({ path: `/${type}/${query}`});
     },
     navigateBack: function () {
       router.push({ path: '/'});
@@ -124,18 +117,16 @@ const app = new Vue({
   template:`
   <div class="app">
     <header class="navbar">
+      <Identity />
       <section class="navbar-section">
-        PismoFlix
-        <router-link to="/">favoritos</router-link>
-      </section>
-      <section class="navbar-section">
-        <SearchBar :on-search="search"></SearchBar>
+        <SearchBar :on-search="search" />
       </section>
     </header>
     <div class="router-view">
-      <ProgressWait v-if="isSearching" title="Aguarde..." />
       <router-view></router-view>
+      <FavoritosView />
     </div>
+    <ProgressWait v-if="isSearching" title="Aguarde..." />
   </div>
   `
 });

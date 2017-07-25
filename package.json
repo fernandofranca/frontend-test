@@ -4,11 +4,12 @@
   "description": "Primeiramente você deve fazer um fork desse projeto para então iniciar os trabalhos. Após o teste estar totalmente pronto você deve abrir uma Pull Request de volta para este repositório e enviar um email para [labs@pismo.com.br](mailto:labs@pismo.com.br) confirmando a entrega.",
   "main": "index.js",
   "scripts": {
-    "test": "node node_modules/tape/bin/tape ./test/**/*.js | node node_modules/faucet/bin/cmd.js",
+    "test": "echo 'Rode direto no terminal: \"node node_modules/tape/bin/tape ./test/**/*.js | node node_modules/tap-diff/distributions/cli.js\"'",
     "browser-sync-start": "cd dist/ && browser-sync start --server --files \"./css/*.css\" --files \"./js/*.js\"",
     "sass-watch": "sass --watch ./src/scss:./dist/css/",
     "webpack-watch": "./node_modules/.bin/webpack --config webpack.config.js  --progress --colors --watch",
-    "build": "NODE_ENV='production' ./node_modules/.bin/webpack -p  --config webpack.config.js"
+    "build": "NODE_ENV='production' ./node_modules/.bin/webpack -p  --config webpack.config.js && sass ./src/scss/style.scss -t compressed > ./dist/css/style.css",
+    "server": "node node_modules/http-server/bin/http-server ./dist -p 3000"
   },
   "repository": {
     "type": "git",
@@ -27,7 +28,9 @@
     "babel-preset-stage-2": "~6.24.1",
     "faucet": "^0.0.1",
     "html-webpack-plugin": "~2.29.0",
+    "http-server": "^0.10.0",
     "nightmare": "^2.10.0",
+    "tap-diff": "^0.1.1",
     "tape": "4.7.0",
     "webpack": "~3.3.0"
   },

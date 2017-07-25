@@ -4,7 +4,7 @@ module.exports = Vue.component('SearchBar', {
   props: ['onSearch'],
   data: function () {
     return {
-      type:"actor",
+      type:"title",
       text:"",
     }
   },
