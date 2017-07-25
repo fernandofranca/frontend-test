@@ -3,15 +3,20 @@ const axios = require('axios');
 const apiURL = 'https://netflixroulette.net/api/api.php';
 
 function _search(criteria, val) {
-  return axios
+  return new Promise((resolve, reject) => {
+    axios
     .get(`${apiURL}?${criteria}=${val}`)
     .then(function (response) {
       if (response && response.data){
-        return response.data;
+        resolve(response.data);
       } else {
-        throw new Error("API responded without data.");
+        reject(new Error("API responded without data."));
       }
+    })
+    .catch((err) => {
+      reject(err);
     });
+  });
 }
 
 module.exports = class NetflixAPI {
