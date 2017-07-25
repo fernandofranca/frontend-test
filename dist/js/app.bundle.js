@@ -11129,6 +11129,16 @@ var app = new _vue2.default({
 
           eventHub.$emit("movie-info", _this.searchResult);
         }
+
+        if (result.type === 'director') {
+
+          // Verifica se esta na rota esperada antes de modificar, 
+          // evitando duplicar entradas no history 
+          var _isAtExpectedRoute = router.currentRoute.fullPath === '/director/' + result.query;
+          if (!_isAtExpectedRoute) router.push({ path: '/director/' + result.query });
+
+          eventHub.$emit("director-info", _this.searchResult);
+        }
       });
 
       eventHub.$on("search-result-not-found", function (details) {
@@ -11142,6 +11152,14 @@ var app = new _vue2.default({
           eventHub.$emit("movie-info", _this.searchResult);
         } else {
           _this.search('title', data.title);
+        }
+      });
+
+      eventHub.$on("get-director-info", function (data) {
+        if (_this.searchResult && _this.searchResult.query === data.name) {
+          eventHub.$emit("director-info", _this.searchResult);
+        } else {
+          _this.search('director', data.name);
         }
       });
     },
@@ -13712,9 +13730,13 @@ Object.defineProperty(exports, "__esModule", {
 var FavoritosList = __webpack_require__(16);
 var NoResults = __webpack_require__(17);
 var MovieInfo = __webpack_require__(18);
+var DirectorInfo = __webpack_require__(42);
 
 exports.default = [{ path: '/', component: FavoritosList }, { path: '/no-results', component: NoResults }, { path: '/movie/:name',
   component: MovieInfo,
+  props: true
+}, { path: '/director/:name',
+  component: DirectorInfo,
   props: true
 }];
 
@@ -13763,6 +13785,7 @@ module.exports = Vue.component('NoResults', {
 var Vue = __webpack_require__(1);
 var Modal = __webpack_require__(2);
 var Icon = __webpack_require__(6);
+var Poster = __webpack_require__(44);
 
 var eventHub = __webpack_require__(3);
 
@@ -13797,7 +13820,7 @@ module.exports = Vue.component('MovieInfo', {
       eventHub.$emit("navigate-back");
     }
   },
-  template: '\n    <div class="movie-info">\n      <Modal title="Filme">\n        <div slot="content">\n          <div class="columns" v-if="result">\n            <div class="column col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">\n              <img :src="result.poster" :alt="result.show_title" class="poster" />\n            </div>\n            <div class="column col-xs-12 col-sm-12 col-md-9 col-lg-9 col-xl-9">\n              <h2>{{result.show_title}} ({{result.release_year}})</h2>\n              <h4 v-if="result.director">Dirigido por: <span class="director">{{result.director}}</span></h4>\n              <h4>Avalia\xE7\xE3o: {{result.rating}}</h4>\n              <h4>Enredo</h4>\n              <p>{{result.summary}}</p>\n              <h4>Cast</h4>\n              <p>{{result.show_cast}}</p>\n            </div>\n          </div>\n        </div>\n        <div slot="footer">\n          <button @click.prevent.stop="dismiss" class="btn btn-primary">\n            <Icon type="icon-arrow-left" /> voltar\n          </button>\n        </div>\n      </Modal>\n    </div>\n  '
+  template: '\n    <div class="movie-info">\n      <Modal title="Filme">\n        <div slot="content">\n          <div class="columns" v-if="result">\n            <div class="column col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">\n              <Poster :src="result.poster" :alt="result.show_title" />\n            </div>\n            <div class="column col-xs-12 col-sm-12 col-md-9 col-lg-9 col-xl-9">\n              <h2>{{result.show_title}} ({{result.release_year}})</h2>\n              <h4 v-if="result.director">Dirigido por: <span class="director">{{result.director}}</span></h4>\n              <h4>Avalia\xE7\xE3o: {{result.rating}}</h4>\n              <h4>Enredo</h4>\n              <p>{{result.summary}}</p>\n              <h4>Cast</h4>\n              <p>{{result.show_cast}}</p>\n            </div>\n          </div>\n        </div>\n        <div slot="footer">\n          <button @click.prevent.stop="dismiss" class="btn btn-primary">\n            <Icon type="icon-arrow-left" /> voltar\n          </button>\n        </div>\n      </Modal>\n    </div>\n  '
 });
 
 /***/ }),
@@ -14812,8 +14835,8 @@ module.exports = Vue.component('SearchBar', {
   props: ['onSearch'],
   data: function data() {
     return {
-      type: "title",
-      text: "Raging Bull"
+      type: "actor",
+      text: "Robert De Niro"
     };
   },
   methods: {
@@ -14821,7 +14844,7 @@ module.exports = Vue.component('SearchBar', {
       if (this.text.length >= 2) this.onSearch(this.type, this.text);
     }
   },
-  template: '\n  <div class="input-group input-inline">\n    <input class="form-input" type="text" placeholder="Busca" v-model="text" />\n    <select class="form-select" v-model="type">\n      <option value="title">T\xEDtulo</option>\n      <option value="director">Diretor</option>\n      <option value="actor">Ator</option>\n    </select>\n    <button ref="button" @click.prevent.stop="search" class="btn btn-primary input-group-btn">Busca</button>\n  </div>\n  '
+  template: '\n  <form @submit.prevent.stop="search">\n    <div class="input-group input-inline search-bar">\n      <input class="form-input" type="text" placeholder="Busca" v-model="text" />\n      <select class="form-select" v-model="type">\n        <option value="title">T\xEDtulo</option>\n        <option value="director">Diretor</option>\n        <option value="actor">Ator</option>\n      </select>\n      <button ref="button" @click.prevent.stop="search" class="btn btn-primary input-group-btn">Busca</button>\n    </div>\n  </form>\n  '
 });
 
 /***/ }),
@@ -14840,6 +14863,101 @@ var Modal = __webpack_require__(2);
 exports.default = Vue.component('ProgressWait', {
   props: ['title'],
   template: '\n    <Modal>\n      <div slot="content">\n        <p>{{title}}</p>\n        <div class="loading"></div>\n      </div>\n    </Modal>\n  '
+});
+
+/***/ }),
+/* 42 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Vue = __webpack_require__(1);
+var Modal = __webpack_require__(2);
+var Icon = __webpack_require__(6);
+var MovieItem = __webpack_require__(43);
+
+var eventHub = __webpack_require__(3);
+
+module.exports = Vue.component('MovieInfo', {
+  props: ['name'],
+  data: function data() {
+    return {
+      result: null
+    };
+  },
+  watch: {
+    /* Caso já esteja montado e a prop muda */
+    name: function name(val) {
+      this.getInfo();
+      // TODO
+    }
+  },
+  mounted: function mounted() {
+    this.getInfo(this.name); /* Faz outra busca caso o param da url mude*/
+  },
+  methods: {
+    getInfo: function getInfo() {
+      var _this = this;
+
+      eventHub.$once("director-info", function (data) {
+        _this.result = data.result;
+      });
+
+      eventHub.$emit("get-director-info", { name: this.name });
+    },
+    getMovieInfo: function getMovieInfo(title) {
+      eventHub.$emit("get-movie-info", { title: title });
+    },
+    dismiss: function dismiss() {
+      eventHub.$emit("navigate-back");
+    }
+  },
+  template: '\n    <div class="director-info">\n      <Modal title="Diretor">\n        <div slot="content">\n          <div v-if="result">\n            <h2>{{name}}</h2>\n            <div v-for="info in result">\n              <MovieItem :info="info" :onClick="getMovieInfo"/>\n            </div>\n          </div>\n        </div>\n        <div slot="footer">\n          <button @click.prevent.stop="dismiss" class="btn btn-primary">\n            <Icon type="icon-arrow-left" /> voltar\n          </button>\n        </div>\n      </Modal>\n    </div>\n  '
+});
+
+/***/ }),
+/* 43 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Vue = __webpack_require__(1);
+var Poster = __webpack_require__(44);
+
+module.exports = Vue.component('MovieItem', {
+  props: ['info', 'onClick'],
+  methods: {
+    handleClick: function handleClick(title) {
+      if (this.onClick) this.onClick(title);
+    }
+  },
+  template: '\n  <div class="movie-item" @click="handleClick(info.show_title)">\n    <div class="columns">\n      <div class="column col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">\n        <Poster :src="info.poster" :alt="info.show_title" />\n      </div>\n      <div class="column col-xs-12 col-sm-12 col-md-9 col-lg-9 col-xl-9">\n        <h3>{{info.show_title}} ({{info.release_year}})</h3>\n        <h4>Avalia\xE7\xE3o: {{info.rating}}</h4>\n        <p>{{info.summary}}</p>\n      </div>\n    </div>\n  </div>\n  '
+});
+
+/***/ }),
+/* 44 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Vue = __webpack_require__(1);
+
+module.exports = Vue.component('Poster', {
+  props: ['alt', 'src'],
+  data: function data() {
+    return {
+      hasFailed: false
+    };
+  },
+  methods: {
+    handleError: function handleError() {
+      this.hasFailed = true;
+    }
+  },
+  template: '\n  <div class="poster">\n    <img :src="src" :alt="alt" class="poster" @error="handleError" v-if="!hasFailed"/>\n    <div v-if="hasFailed" class="failed"></div>\n  </div>\n  '
 });
 
 /***/ })

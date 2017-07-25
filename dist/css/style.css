@@ -4380,6 +4380,18 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
   height: auto; }
 
+.movie-item .director {
+  font-weight: normal; }
+
+.poster div.failed {
+  width: 100%;
+  background: #555;
+  padding-top: 140%;
+  box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.48); }
+.poster img.poster {
+  width: 100%;
+  height: auto; }
+
 body {
   font-size: 2em; }
 

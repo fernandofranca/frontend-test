@@ -47,6 +47,16 @@ const app = new Vue({
 
           eventHub.$emit("movie-info", this.searchResult);
         }
+
+        if (result.type==='director'){
+          
+          // Verifica se esta na rota esperada antes de modificar, 
+          // evitando duplicar entradas no history 
+          let isAtExpectedRoute = router.currentRoute.fullPath===`/director/${result.query}`;
+          if (!isAtExpectedRoute) router.push({ path: `/director/${result.query}`});
+
+          eventHub.$emit("director-info", this.searchResult);
+        }
       });
 
       eventHub.$on("search-result-not-found", (details)=> {
@@ -61,7 +71,15 @@ const app = new Vue({
         } else {
           this.search('title', data.title);
         }
-      })
+      });
+
+      eventHub.$on("get-director-info", (data)=> {
+        if (this.searchResult && this.searchResult.query===data.name){
+          eventHub.$emit("director-info", this.searchResult);
+        } else {
+          this.search('director', data.name);
+        }
+      });
     },
     search: function (type, text) {
       eventHub.$emit("search-start", {type, text});
