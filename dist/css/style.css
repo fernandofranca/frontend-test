@@ -1370,7 +1370,7 @@ code {
 .col-1 {
   width: 8.33333333%; }
 
-@media screen and (max-width: 1280px) {
+@media screen and (max-width: 1920px) {
   .col-xl-12,
   .col-xl-11,
   .col-xl-10,
@@ -4367,10 +4367,25 @@ code {
 .timeline .timeline-item .timeline-icon.icon-lg::before {
   content: none; }
 
+/* Moal - Aumenta o limite da largura */
+.modal:target .modal-container, .modal.active .modal-container {
+  max-width: 120rem; }
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: bold; }
+
+.movie-info .director {
+  font-weight: normal; }
+.movie-info img.poster {
+  width: 100%;
+  height: auto; }
+
 body {
   font-size: 2em; }
 
 .app .navbar {
+  margin-top: 2em;
+  /* TEMPORARIO */
   background: #ccc;
   padding: 1em; }
   .app .navbar section a {

@@ -1,5 +1,5 @@
-import Vue from 'vue';
+const Vue = require('vue');
 
-export default Vue.component('FavoritosList', {
+module.exports = Vue.component('FavoritosList', {
   template: '<div>FavoritosList component.</div>'
 })

@@ -45,7 +45,7 @@ module.exports = new Vue({
         method(payload.text)
         .then((result) => {
           eventHub.$emit("search-ended");
-          eventHub.$emit("search-result", {type: payload.type, result});
+          eventHub.$emit("search-result", {query:payload.text, type: payload.type, result});
         })
         .catch((err) => {
           var details = {};
