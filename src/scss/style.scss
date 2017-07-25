@@ -1,4 +1,7 @@
 @import "spectre";
+@import "spectre-overrides";
+@import "type";
+@import "components";
 
 body {
   font-size: 2em;
@@ -6,6 +9,7 @@ body {
 
 .app{
   .navbar {
+    margin-top: 2em; /* TEMPORARIO */
     background: #ccc;
     padding: 1em;
 

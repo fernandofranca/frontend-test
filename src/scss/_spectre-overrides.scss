@@ -1,0 +1,4 @@
+/* Moal - Aumenta o limite da largura */
+.modal:target .modal-container, .modal.active .modal-container {
+  max-width: 120rem;
+}
