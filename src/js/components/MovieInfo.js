@@ -1,6 +1,7 @@
 const Vue = require('vue');
 const Modal = require('./ui/Modal.js');
 const Icon = require('./ui/Icon.js');
+const Poster = require('./Poster.js');
 
 const eventHub = require('../eventHub.js');
 
@@ -39,7 +40,7 @@ module.exports = Vue.component('MovieInfo', {
         <div slot="content">
           <div class="columns" v-if="result">
             <div class="column col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
-              <img :src="result.poster" :alt="result.show_title" class="poster" />
+              <Poster :src="result.poster" :alt="result.show_title" />
             </div>
             <div class="column col-xs-12 col-sm-12 col-md-9 col-lg-9 col-xl-9">
               <h2>{{result.show_title}} ({{result.release_year}})</h2>
