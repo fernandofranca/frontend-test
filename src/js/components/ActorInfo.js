@@ -24,23 +24,21 @@ module.exports = Vue.component('MovieInfo', {
   },
   methods:{
     getInfo: function () {
-      eventHub.$once("director-info", (data)=>{
+      eventHub.$once("actor-info", (data)=>{
         this.result = data.result.sort(sortOnYear);
       });
 
-      eventHub.$emit("get-director-info", {name:this.name});
+      eventHub.$emit("get-actor-info", {name:this.name});
     },
     dismiss: function () {
       eventHub.$emit("navigate-back");
     }
   },
   template: `
-    <div class="director-info">
-      <Modal :title="'Diretor: ' + name">
-        <div slot="content">
-          <div v-if="result">
-            <MovieItem :info="info" v-for="info in result" :key="info.show_id"/>
-          </div>
+    <div class="actor-info">
+      <Modal :title="'Ator: ' + name">
+        <div slot="content" v-if="result">
+          <MovieItem :info="info" v-for="info in result" :key="info.show_id"/>
         </div>
         <div slot="footer">
           <button @click.prevent.stop="dismiss" class="btn btn-primary">

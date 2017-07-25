@@ -26,18 +26,32 @@ const app = new Vue({
     listen: function () {
       eventHub.$on("navigate-back", this.navigateBack);
 
+      // Escuta evento de inicio de busca para exibir o comp de loader
       eventHub.$on("search-started", ()=> {
         this.isSearching = true;
       });
 
+      // Escuta evento de termino de busca para ocultar o comp de loader
       eventHub.$on("search-ended", ()=> {
         this.isSearching = false;
       });
 
+      // Escuta evento de resultado não encontrado para exibir view correspondente
+      eventHub.$on("search-result-not-found", (details)=> {
+        router.push({ path: '/no-results' });
+        this.searchResult = null;
+      });
+
+      // Escuta eventos de requisições de infos
+      this.listenInfoRequests();
+
+      // Escuta eventos de resultados de infos
+      this.listenInfoResults();
+    },
+    listenInfoResults: function () {
       eventHub.$on("search-result", (result)=> {
         this.searchResult = result;
 
-        // >>>>>>
         if (result.type==='title'){
           
           // Verifica se esta na rota esperada antes de modificar, 
@@ -45,7 +59,7 @@ const app = new Vue({
           let isAtExpectedRoute = router.currentRoute.fullPath===`/movie/${result.query}`;
           if (!isAtExpectedRoute) router.push({ path: `/movie/${result.query}`});
 
-          eventHub.$emit("movie-info", this.searchResult);
+          eventHub.$emit("movie-info", this.searchResult); // Emite o evento que a view aguarda
         }
 
         if (result.type==='director'){
@@ -55,16 +69,24 @@ const app = new Vue({
           let isAtExpectedRoute = router.currentRoute.fullPath===`/director/${result.query}`;
           if (!isAtExpectedRoute) router.push({ path: `/director/${result.query}`});
 
-          eventHub.$emit("director-info", this.searchResult);
+          eventHub.$emit("director-info", this.searchResult); // Emite o evento que a view aguarda
+        }
+
+        if (result.type==='actor'){
+          
+          // Verifica se esta na rota esperada antes de modificar, 
+          // evitando duplicar entradas no history 
+          let isAtExpectedRoute = router.currentRoute.fullPath===`/actor/${result.query}`;
+          if (!isAtExpectedRoute) router.push({ path: `/actor/${result.query}`});
+
+          eventHub.$emit("actor-info", this.searchResult); // Emite o evento que a view aguarda
         }
       });
-
-      eventHub.$on("search-result-not-found", (details)=> {
-        router.push({ path: '/no-results' });
-        this.searchResult = null;
-      });
-
-      // >>>>>>
+    },
+    listenInfoRequests: function () {
+      // Aguarda evento de requisição de infos
+      // Se já tem essa info no model emite evento imediatamente
+      // Do contrário inicia uma busca
       eventHub.$on("get-movie-info", (data)=> {
         if (this.searchResult && this.searchResult.query===data.title){
           eventHub.$emit("movie-info", this.searchResult);
@@ -78,6 +100,14 @@ const app = new Vue({
           eventHub.$emit("director-info", this.searchResult);
         } else {
           this.search('director', data.name);
+        }
+      });
+
+      eventHub.$on("get-actor-info", (data)=> {
+        if (this.searchResult && this.searchResult.query===data.name){
+          eventHub.$emit("actor-info", this.searchResult);
+        } else {
+          this.search('actor', data.name);
         }
       });
     },

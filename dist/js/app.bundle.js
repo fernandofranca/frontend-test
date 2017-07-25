@@ -60,321 +60,11 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 12);
+/******/ 	return __webpack_require__(__webpack_require__.s = 14);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var bind = __webpack_require__(7);
-var isBuffer = __webpack_require__(23);
-
-/*global toString:true*/
-
-// utils is a library of generic helper functions non-specific to axios
-
-var toString = Object.prototype.toString;
-
-/**
- * Determine if a value is an Array
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is an Array, otherwise false
- */
-function isArray(val) {
-  return toString.call(val) === '[object Array]';
-}
-
-/**
- * Determine if a value is an ArrayBuffer
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is an ArrayBuffer, otherwise false
- */
-function isArrayBuffer(val) {
-  return toString.call(val) === '[object ArrayBuffer]';
-}
-
-/**
- * Determine if a value is a FormData
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is an FormData, otherwise false
- */
-function isFormData(val) {
-  return (typeof FormData !== 'undefined') && (val instanceof FormData);
-}
-
-/**
- * Determine if a value is a view on an ArrayBuffer
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false
- */
-function isArrayBufferView(val) {
-  var result;
-  if ((typeof ArrayBuffer !== 'undefined') && (ArrayBuffer.isView)) {
-    result = ArrayBuffer.isView(val);
-  } else {
-    result = (val) && (val.buffer) && (val.buffer instanceof ArrayBuffer);
-  }
-  return result;
-}
-
-/**
- * Determine if a value is a String
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a String, otherwise false
- */
-function isString(val) {
-  return typeof val === 'string';
-}
-
-/**
- * Determine if a value is a Number
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Number, otherwise false
- */
-function isNumber(val) {
-  return typeof val === 'number';
-}
-
-/**
- * Determine if a value is undefined
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if the value is undefined, otherwise false
- */
-function isUndefined(val) {
-  return typeof val === 'undefined';
-}
-
-/**
- * Determine if a value is an Object
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is an Object, otherwise false
- */
-function isObject(val) {
-  return val !== null && typeof val === 'object';
-}
-
-/**
- * Determine if a value is a Date
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Date, otherwise false
- */
-function isDate(val) {
-  return toString.call(val) === '[object Date]';
-}
-
-/**
- * Determine if a value is a File
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a File, otherwise false
- */
-function isFile(val) {
-  return toString.call(val) === '[object File]';
-}
-
-/**
- * Determine if a value is a Blob
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Blob, otherwise false
- */
-function isBlob(val) {
-  return toString.call(val) === '[object Blob]';
-}
-
-/**
- * Determine if a value is a Function
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Function, otherwise false
- */
-function isFunction(val) {
-  return toString.call(val) === '[object Function]';
-}
-
-/**
- * Determine if a value is a Stream
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Stream, otherwise false
- */
-function isStream(val) {
-  return isObject(val) && isFunction(val.pipe);
-}
-
-/**
- * Determine if a value is a URLSearchParams object
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a URLSearchParams object, otherwise false
- */
-function isURLSearchParams(val) {
-  return typeof URLSearchParams !== 'undefined' && val instanceof URLSearchParams;
-}
-
-/**
- * Trim excess whitespace off the beginning and end of a string
- *
- * @param {String} str The String to trim
- * @returns {String} The String freed of excess whitespace
- */
-function trim(str) {
-  return str.replace(/^\s*/, '').replace(/\s*$/, '');
-}
-
-/**
- * Determine if we're running in a standard browser environment
- *
- * This allows axios to run in a web worker, and react-native.
- * Both environments support XMLHttpRequest, but not fully standard globals.
- *
- * web workers:
- *  typeof window -> undefined
- *  typeof document -> undefined
- *
- * react-native:
- *  navigator.product -> 'ReactNative'
- */
-function isStandardBrowserEnv() {
-  if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-    return false;
-  }
-  return (
-    typeof window !== 'undefined' &&
-    typeof document !== 'undefined'
-  );
-}
-
-/**
- * Iterate over an Array or an Object invoking a function for each item.
- *
- * If `obj` is an Array callback will be called passing
- * the value, index, and complete array for each item.
- *
- * If 'obj' is an Object callback will be called passing
- * the value, key, and complete object for each property.
- *
- * @param {Object|Array} obj The object to iterate
- * @param {Function} fn The callback to invoke for each item
- */
-function forEach(obj, fn) {
-  // Don't bother if no value provided
-  if (obj === null || typeof obj === 'undefined') {
-    return;
-  }
-
-  // Force an array if not already something iterable
-  if (typeof obj !== 'object' && !isArray(obj)) {
-    /*eslint no-param-reassign:0*/
-    obj = [obj];
-  }
-
-  if (isArray(obj)) {
-    // Iterate over array values
-    for (var i = 0, l = obj.length; i < l; i++) {
-      fn.call(null, obj[i], i, obj);
-    }
-  } else {
-    // Iterate over object keys
-    for (var key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        fn.call(null, obj[key], key, obj);
-      }
-    }
-  }
-}
-
-/**
- * Accepts varargs expecting each argument to be an object, then
- * immutably merges the properties of each object and returns result.
- *
- * When multiple objects contain the same key the later object in
- * the arguments list will take precedence.
- *
- * Example:
- *
- * ```js
- * var result = merge({foo: 123}, {foo: 456});
- * console.log(result.foo); // outputs 456
- * ```
- *
- * @param {Object} obj1 Object to merge
- * @returns {Object} Result of all merge properties
- */
-function merge(/* obj1, obj2, obj3, ... */) {
-  var result = {};
-  function assignValue(val, key) {
-    if (typeof result[key] === 'object' && typeof val === 'object') {
-      result[key] = merge(result[key], val);
-    } else {
-      result[key] = val;
-    }
-  }
-
-  for (var i = 0, l = arguments.length; i < l; i++) {
-    forEach(arguments[i], assignValue);
-  }
-  return result;
-}
-
-/**
- * Extends object a by mutably adding to it the properties of object b.
- *
- * @param {Object} a The object to be extended
- * @param {Object} b The object to copy properties from
- * @param {Object} thisArg The object to bind function to
- * @return {Object} The resulting value of object a
- */
-function extend(a, b, thisArg) {
-  forEach(b, function assignValue(val, key) {
-    if (thisArg && typeof val === 'function') {
-      a[key] = bind(val, thisArg);
-    } else {
-      a[key] = val;
-    }
-  });
-  return a;
-}
-
-module.exports = {
-  isArray: isArray,
-  isArrayBuffer: isArrayBuffer,
-  isBuffer: isBuffer,
-  isFormData: isFormData,
-  isArrayBufferView: isArrayBufferView,
-  isString: isString,
-  isNumber: isNumber,
-  isObject: isObject,
-  isUndefined: isUndefined,
-  isDate: isDate,
-  isFile: isFile,
-  isBlob: isBlob,
-  isFunction: isFunction,
-  isStream: isStream,
-  isURLSearchParams: isURLSearchParams,
-  isStandardBrowserEnv: isStandardBrowserEnv,
-  forEach: forEach,
-  merge: merge,
-  extend: extend,
-  trim: trim
-};
-
-
-/***/ }),
-/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/*!
@@ -10456,7 +10146,317 @@ return Vue$3;
 
 })));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15)))
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var bind = __webpack_require__(9);
+var isBuffer = __webpack_require__(28);
+
+/*global toString:true*/
+
+// utils is a library of generic helper functions non-specific to axios
+
+var toString = Object.prototype.toString;
+
+/**
+ * Determine if a value is an Array
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an Array, otherwise false
+ */
+function isArray(val) {
+  return toString.call(val) === '[object Array]';
+}
+
+/**
+ * Determine if a value is an ArrayBuffer
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an ArrayBuffer, otherwise false
+ */
+function isArrayBuffer(val) {
+  return toString.call(val) === '[object ArrayBuffer]';
+}
+
+/**
+ * Determine if a value is a FormData
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an FormData, otherwise false
+ */
+function isFormData(val) {
+  return (typeof FormData !== 'undefined') && (val instanceof FormData);
+}
+
+/**
+ * Determine if a value is a view on an ArrayBuffer
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false
+ */
+function isArrayBufferView(val) {
+  var result;
+  if ((typeof ArrayBuffer !== 'undefined') && (ArrayBuffer.isView)) {
+    result = ArrayBuffer.isView(val);
+  } else {
+    result = (val) && (val.buffer) && (val.buffer instanceof ArrayBuffer);
+  }
+  return result;
+}
+
+/**
+ * Determine if a value is a String
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a String, otherwise false
+ */
+function isString(val) {
+  return typeof val === 'string';
+}
+
+/**
+ * Determine if a value is a Number
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Number, otherwise false
+ */
+function isNumber(val) {
+  return typeof val === 'number';
+}
+
+/**
+ * Determine if a value is undefined
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if the value is undefined, otherwise false
+ */
+function isUndefined(val) {
+  return typeof val === 'undefined';
+}
+
+/**
+ * Determine if a value is an Object
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an Object, otherwise false
+ */
+function isObject(val) {
+  return val !== null && typeof val === 'object';
+}
+
+/**
+ * Determine if a value is a Date
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Date, otherwise false
+ */
+function isDate(val) {
+  return toString.call(val) === '[object Date]';
+}
+
+/**
+ * Determine if a value is a File
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a File, otherwise false
+ */
+function isFile(val) {
+  return toString.call(val) === '[object File]';
+}
+
+/**
+ * Determine if a value is a Blob
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Blob, otherwise false
+ */
+function isBlob(val) {
+  return toString.call(val) === '[object Blob]';
+}
+
+/**
+ * Determine if a value is a Function
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Function, otherwise false
+ */
+function isFunction(val) {
+  return toString.call(val) === '[object Function]';
+}
+
+/**
+ * Determine if a value is a Stream
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Stream, otherwise false
+ */
+function isStream(val) {
+  return isObject(val) && isFunction(val.pipe);
+}
+
+/**
+ * Determine if a value is a URLSearchParams object
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a URLSearchParams object, otherwise false
+ */
+function isURLSearchParams(val) {
+  return typeof URLSearchParams !== 'undefined' && val instanceof URLSearchParams;
+}
+
+/**
+ * Trim excess whitespace off the beginning and end of a string
+ *
+ * @param {String} str The String to trim
+ * @returns {String} The String freed of excess whitespace
+ */
+function trim(str) {
+  return str.replace(/^\s*/, '').replace(/\s*$/, '');
+}
+
+/**
+ * Determine if we're running in a standard browser environment
+ *
+ * This allows axios to run in a web worker, and react-native.
+ * Both environments support XMLHttpRequest, but not fully standard globals.
+ *
+ * web workers:
+ *  typeof window -> undefined
+ *  typeof document -> undefined
+ *
+ * react-native:
+ *  navigator.product -> 'ReactNative'
+ */
+function isStandardBrowserEnv() {
+  if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+    return false;
+  }
+  return (
+    typeof window !== 'undefined' &&
+    typeof document !== 'undefined'
+  );
+}
+
+/**
+ * Iterate over an Array or an Object invoking a function for each item.
+ *
+ * If `obj` is an Array callback will be called passing
+ * the value, index, and complete array for each item.
+ *
+ * If 'obj' is an Object callback will be called passing
+ * the value, key, and complete object for each property.
+ *
+ * @param {Object|Array} obj The object to iterate
+ * @param {Function} fn The callback to invoke for each item
+ */
+function forEach(obj, fn) {
+  // Don't bother if no value provided
+  if (obj === null || typeof obj === 'undefined') {
+    return;
+  }
+
+  // Force an array if not already something iterable
+  if (typeof obj !== 'object' && !isArray(obj)) {
+    /*eslint no-param-reassign:0*/
+    obj = [obj];
+  }
+
+  if (isArray(obj)) {
+    // Iterate over array values
+    for (var i = 0, l = obj.length; i < l; i++) {
+      fn.call(null, obj[i], i, obj);
+    }
+  } else {
+    // Iterate over object keys
+    for (var key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        fn.call(null, obj[key], key, obj);
+      }
+    }
+  }
+}
+
+/**
+ * Accepts varargs expecting each argument to be an object, then
+ * immutably merges the properties of each object and returns result.
+ *
+ * When multiple objects contain the same key the later object in
+ * the arguments list will take precedence.
+ *
+ * Example:
+ *
+ * ```js
+ * var result = merge({foo: 123}, {foo: 456});
+ * console.log(result.foo); // outputs 456
+ * ```
+ *
+ * @param {Object} obj1 Object to merge
+ * @returns {Object} Result of all merge properties
+ */
+function merge(/* obj1, obj2, obj3, ... */) {
+  var result = {};
+  function assignValue(val, key) {
+    if (typeof result[key] === 'object' && typeof val === 'object') {
+      result[key] = merge(result[key], val);
+    } else {
+      result[key] = val;
+    }
+  }
+
+  for (var i = 0, l = arguments.length; i < l; i++) {
+    forEach(arguments[i], assignValue);
+  }
+  return result;
+}
+
+/**
+ * Extends object a by mutably adding to it the properties of object b.
+ *
+ * @param {Object} a The object to be extended
+ * @param {Object} b The object to copy properties from
+ * @param {Object} thisArg The object to bind function to
+ * @return {Object} The resulting value of object a
+ */
+function extend(a, b, thisArg) {
+  forEach(b, function assignValue(val, key) {
+    if (thisArg && typeof val === 'function') {
+      a[key] = bind(val, thisArg);
+    } else {
+      a[key] = val;
+    }
+  });
+  return a;
+}
+
+module.exports = {
+  isArray: isArray,
+  isArrayBuffer: isArrayBuffer,
+  isBuffer: isBuffer,
+  isFormData: isFormData,
+  isArrayBufferView: isArrayBufferView,
+  isString: isString,
+  isNumber: isNumber,
+  isObject: isObject,
+  isUndefined: isUndefined,
+  isDate: isDate,
+  isFile: isFile,
+  isBlob: isBlob,
+  isFunction: isFunction,
+  isStream: isStream,
+  isURLSearchParams: isURLSearchParams,
+  isStandardBrowserEnv: isStandardBrowserEnv,
+  forEach: forEach,
+  merge: merge,
+  extend: extend,
+  trim: trim
+};
+
 
 /***/ }),
 /* 2 */
@@ -10465,15 +10465,9 @@ return Vue$3;
 "use strict";
 
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var Vue = __webpack_require__(1);
+var Vue = __webpack_require__(0);
 
-exports.default = Vue.component('Modal', {
-  props: ['title'],
-  template: '\n    <div class="modal active">\n      <div class="modal-overlay"></div>\n      <div class="modal-container">\n        <div class="modal-header">\n          <div class="modal-title">{{title}}</div>\n        </div>\n        <div class="modal-body">\n          <div class="content">\n            <slot name="content"></slot>\n          </div>\n        </div>\n        <div class="modal-footer">\n          <slot name="footer"></slot>\n        </div>\n      </div>\n    </div>\n  '
-});
+module.exports = new Vue({});
 
 /***/ }),
 /* 3 */
@@ -10482,12 +10476,29 @@ exports.default = Vue.component('Modal', {
 "use strict";
 
 
-var Vue = __webpack_require__(1);
+var Vue = __webpack_require__(0);
 
-module.exports = new Vue({});
+module.exports = Vue.component('Modal', {
+  props: ['title'],
+  template: '\n    <div class="modal active">\n      <div class="modal-overlay"></div>\n      <div class="modal-container">\n        <div class="modal-header">\n          <div class="modal-title">\n            <h2>{{title}}</h2>\n          </div>\n        </div>\n        <div class="modal-body">\n          <div class="content">\n            <slot name="content"></slot>\n          </div>\n        </div>\n        <div class="modal-footer">\n          <slot name="footer"></slot>\n        </div>\n      </div>\n    </div>\n  '
+});
 
 /***/ }),
 /* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Vue = __webpack_require__(0);
+
+module.exports = Vue.component('Icon', {
+  props: ['type'],
+  template: '\n    <i class="icon" :class="type"></i>\n  '
+});
+
+/***/ }),
+/* 5 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -10677,14 +10688,50 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 5 */
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Vue = __webpack_require__(0);
+var Poster = __webpack_require__(21);
+
+var eventHub = __webpack_require__(2);
+
+module.exports = Vue.component('MovieItem', {
+  props: ['info', 'eventHub'],
+  methods: {
+    getMovieInfo: function getMovieInfo(title) {
+      eventHub.$emit("get-movie-info", { title: title });
+    },
+    getDirectorInfo: function getDirectorInfo(name) {
+      eventHub.$emit("get-director-info", { name: name });
+    },
+    getActorInfo: function getActorInfo(name) {
+      eventHub.$emit("get-actor-info", { name: name });
+    }
+  },
+  computed: {
+    movieCastArray: function movieCastArray() {
+      if (!this.info || !this.info.show_cast) return [];
+      return this.info.show_cast.split(',').map(function (name) {
+        return name.trim();
+      });
+    }
+  },
+  template: '\n  <div class="movie-item">\n    <div class="columns">\n      <div class="column col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">\n        <div @click="getMovieInfo(info.show_title)">\n          <Poster :src="info.poster" :alt="info.show_title" />\n        </div>\n      </div>\n      <div class="column col-xs-12 col-sm-12 col-md-9 col-lg-9 col-xl-9">\n        <h3 @click="getMovieInfo(info.show_title)" class="title">{{info.show_title}} ({{info.release_year}})</h3>\n        <h4 class="director" v-if="info.director">\n          Dirigido por: <span class="director" @click="getDirectorInfo(info.director)">{{info.director}}</span>\n        </h4>\n        <div class="summary">\n          <h4 class="rating">Avalia\xE7\xE3o: {{info.rating}}</h4>\n          <p>{{info.summary}}</p>\n        </div>\n        <div class="cast">\n          <h4>Cast</h4>\n          <p>\n            <span v-for="actorName in movieCastArray" class="actor"  @click="getActorInfo(actorName)">{{actorName}}</span>\n          </p>\n        </div>\n      </div>\n    </div>\n  </div>\n  '
+});
+
+/***/ }),
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(process) {
 
-var utils = __webpack_require__(0);
-var normalizeHeaderName = __webpack_require__(25);
+var utils = __webpack_require__(1);
+var normalizeHeaderName = __webpack_require__(30);
 
 var DEFAULT_CONTENT_TYPE = {
   'Content-Type': 'application/x-www-form-urlencoded'
@@ -10700,10 +10747,10 @@ function getDefaultAdapter() {
   var adapter;
   if (typeof XMLHttpRequest !== 'undefined') {
     // For browsers use XHR adapter
-    adapter = __webpack_require__(8);
+    adapter = __webpack_require__(10);
   } else if (typeof process !== 'undefined') {
     // For node use HTTP adapter
-    adapter = __webpack_require__(8);
+    adapter = __webpack_require__(10);
   }
   return adapter;
 }
@@ -10774,27 +10821,21 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = defaults;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ }),
-/* 6 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var Vue = __webpack_require__(1);
-
-exports.default = Vue.component('Icon', {
-  props: ['type'],
-  template: '\n    <i class="icon" :class="type"></i>\n  '
-});
+module.exports = function (a, b) {
+  return parseInt(b.release_year) - parseInt(a.release_year);
+};
 
 /***/ }),
-/* 7 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10812,19 +10853,19 @@ module.exports = function bind(fn, thisArg) {
 
 
 /***/ }),
-/* 8 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(process) {
 
-var utils = __webpack_require__(0);
-var settle = __webpack_require__(26);
-var buildURL = __webpack_require__(28);
-var parseHeaders = __webpack_require__(29);
-var isURLSameOrigin = __webpack_require__(30);
-var createError = __webpack_require__(9);
-var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(31);
+var utils = __webpack_require__(1);
+var settle = __webpack_require__(31);
+var buildURL = __webpack_require__(33);
+var parseHeaders = __webpack_require__(34);
+var isURLSameOrigin = __webpack_require__(35);
+var createError = __webpack_require__(11);
+var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(36);
 
 module.exports = function xhrAdapter(config) {
   return new Promise(function dispatchXhrRequest(resolve, reject) {
@@ -10921,7 +10962,7 @@ module.exports = function xhrAdapter(config) {
     // This is only done if running in a standard browser environment.
     // Specifically not if we're in a web worker, or react-native.
     if (utils.isStandardBrowserEnv()) {
-      var cookies = __webpack_require__(32);
+      var cookies = __webpack_require__(37);
 
       // Add xsrf header
       var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
@@ -10997,16 +11038,16 @@ module.exports = function xhrAdapter(config) {
   });
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ }),
-/* 9 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var enhanceError = __webpack_require__(27);
+var enhanceError = __webpack_require__(32);
 
 /**
  * Create an Error with the specified message, config, error code, request and response.
@@ -11025,7 +11066,7 @@ module.exports = function createError(message, config, code, request, response) 
 
 
 /***/ }),
-/* 10 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11037,7 +11078,7 @@ module.exports = function isCancel(value) {
 
 
 /***/ }),
-/* 11 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11063,33 +11104,33 @@ module.exports = Cancel;
 
 
 /***/ }),
-/* 12 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _vue = __webpack_require__(1);
+var _vue = __webpack_require__(0);
 
 var _vue2 = _interopRequireDefault(_vue);
 
-var _vueRouter = __webpack_require__(14);
+var _vueRouter = __webpack_require__(16);
 
 var _vueRouter2 = _interopRequireDefault(_vueRouter);
 
-var _routes = __webpack_require__(15);
+var _routes = __webpack_require__(17);
 
 var _routes2 = _interopRequireDefault(_routes);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var eventHub = __webpack_require__(3);
-var searchService = __webpack_require__(19);
+var eventHub = __webpack_require__(2);
+var searchService = __webpack_require__(24);
 
 // Componentes
-var SearchBar = __webpack_require__(40);
-var Modal = __webpack_require__(2);
-var ProgressWait = __webpack_require__(41);
+var SearchBar = __webpack_require__(45);
+var Modal = __webpack_require__(3);
+var ProgressWait = __webpack_require__(46);
 
 _vue2.default.use(_vueRouter2.default);
 
@@ -11108,18 +11149,34 @@ var app = new _vue2.default({
 
       eventHub.$on("navigate-back", this.navigateBack);
 
+      // Escuta evento de inicio de busca para exibir o comp de loader
       eventHub.$on("search-started", function () {
         _this.isSearching = true;
       });
 
+      // Escuta evento de termino de busca para ocultar o comp de loader
       eventHub.$on("search-ended", function () {
         _this.isSearching = false;
       });
 
-      eventHub.$on("search-result", function (result) {
-        _this.searchResult = result;
+      // Escuta evento de resultado não encontrado para exibir view correspondente
+      eventHub.$on("search-result-not-found", function (details) {
+        router.push({ path: '/no-results' });
+        _this.searchResult = null;
+      });
 
-        // >>>>>>
+      // Escuta eventos de requisições de infos
+      this.listenInfoRequests();
+
+      // Escuta eventos de resultados de infos
+      this.listenInfoResults();
+    },
+    listenInfoResults: function listenInfoResults() {
+      var _this2 = this;
+
+      eventHub.$on("search-result", function (result) {
+        _this2.searchResult = result;
+
         if (result.type === 'title') {
 
           // Verifica se esta na rota esperada antes de modificar, 
@@ -11127,7 +11184,7 @@ var app = new _vue2.default({
           var isAtExpectedRoute = router.currentRoute.fullPath === '/movie/' + result.query;
           if (!isAtExpectedRoute) router.push({ path: '/movie/' + result.query });
 
-          eventHub.$emit("movie-info", _this.searchResult);
+          eventHub.$emit("movie-info", _this2.searchResult); // Emite o evento que a view aguarda
         }
 
         if (result.type === 'director') {
@@ -11137,29 +11194,47 @@ var app = new _vue2.default({
           var _isAtExpectedRoute = router.currentRoute.fullPath === '/director/' + result.query;
           if (!_isAtExpectedRoute) router.push({ path: '/director/' + result.query });
 
-          eventHub.$emit("director-info", _this.searchResult);
+          eventHub.$emit("director-info", _this2.searchResult); // Emite o evento que a view aguarda
+        }
+
+        if (result.type === 'actor') {
+
+          // Verifica se esta na rota esperada antes de modificar, 
+          // evitando duplicar entradas no history 
+          var _isAtExpectedRoute2 = router.currentRoute.fullPath === '/actor/' + result.query;
+          if (!_isAtExpectedRoute2) router.push({ path: '/actor/' + result.query });
+
+          eventHub.$emit("actor-info", _this2.searchResult); // Emite o evento que a view aguarda
         }
       });
+    },
+    listenInfoRequests: function listenInfoRequests() {
+      var _this3 = this;
 
-      eventHub.$on("search-result-not-found", function (details) {
-        router.push({ path: '/no-results' });
-        _this.searchResult = null;
-      });
-
-      // >>>>>>
+      // Aguarda evento de requisição de infos
+      // Se já tem essa info no model emite evento imediatamente
+      // Do contrário inicia uma busca
       eventHub.$on("get-movie-info", function (data) {
-        if (_this.searchResult && _this.searchResult.query === data.title) {
-          eventHub.$emit("movie-info", _this.searchResult);
+        if (_this3.searchResult && _this3.searchResult.query === data.title) {
+          eventHub.$emit("movie-info", _this3.searchResult);
         } else {
-          _this.search('title', data.title);
+          _this3.search('title', data.title);
         }
       });
 
       eventHub.$on("get-director-info", function (data) {
-        if (_this.searchResult && _this.searchResult.query === data.name) {
-          eventHub.$emit("director-info", _this.searchResult);
+        if (_this3.searchResult && _this3.searchResult.query === data.name) {
+          eventHub.$emit("director-info", _this3.searchResult);
         } else {
-          _this.search('director', data.name);
+          _this3.search('director', data.name);
+        }
+      });
+
+      eventHub.$on("get-actor-info", function (data) {
+        if (_this3.searchResult && _this3.searchResult.query === data.name) {
+          eventHub.$emit("actor-info", _this3.searchResult);
+        } else {
+          _this3.search('actor', data.name);
         }
       });
     },
@@ -11177,7 +11252,7 @@ var app = new _vue2.default({
 });
 
 /***/ }),
-/* 13 */
+/* 15 */
 /***/ (function(module, exports) {
 
 var g;
@@ -11204,7 +11279,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 14 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13715,43 +13790,7 @@ if (inBrowser && window.Vue) {
 
 /* harmony default export */ __webpack_exports__["default"] = (VueRouter);
 
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(4)))
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var FavoritosList = __webpack_require__(16);
-var NoResults = __webpack_require__(17);
-var MovieInfo = __webpack_require__(18);
-var DirectorInfo = __webpack_require__(42);
-
-exports.default = [{ path: '/', component: FavoritosList }, { path: '/no-results', component: NoResults }, { path: '/movie/:name',
-  component: MovieInfo,
-  props: true
-}, { path: '/director/:name',
-  component: DirectorInfo,
-  props: true
-}];
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var Vue = __webpack_require__(1);
-
-module.exports = Vue.component('FavoritosList', {
-  template: '<div>FavoritosList component.</div>'
-});
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(5)))
 
 /***/ }),
 /* 17 */
@@ -13760,11 +13799,51 @@ module.exports = Vue.component('FavoritosList', {
 "use strict";
 
 
-var Vue = __webpack_require__(1);
-var Modal = __webpack_require__(2);
-var Icon = __webpack_require__(6);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var FavoritosList = __webpack_require__(18);
+var NoResults = __webpack_require__(19);
+var MovieInfo = __webpack_require__(20);
+var DirectorInfo = __webpack_require__(22);
+var ActorInfo = __webpack_require__(23);
 
-var eventHub = __webpack_require__(3);
+exports.default = [{ path: '/', component: FavoritosList }, { path: '/no-results', component: NoResults }, { path: '/movie/:name',
+  component: MovieInfo,
+  props: true
+}, { path: '/director/:name',
+  component: DirectorInfo,
+  props: true
+}, { path: '/actor/:name',
+  component: ActorInfo,
+  props: true
+}];
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Vue = __webpack_require__(0);
+
+module.exports = Vue.component('FavoritosList', {
+  template: '<div>FavoritosList component.</div>'
+});
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Vue = __webpack_require__(0);
+var Modal = __webpack_require__(3);
+var Icon = __webpack_require__(4);
+
+var eventHub = __webpack_require__(2);
 
 module.exports = Vue.component('NoResults', {
   methods: {
@@ -13776,18 +13855,18 @@ module.exports = Vue.component('NoResults', {
 });
 
 /***/ }),
-/* 18 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Vue = __webpack_require__(1);
-var Modal = __webpack_require__(2);
-var Icon = __webpack_require__(6);
-var Poster = __webpack_require__(44);
+var Vue = __webpack_require__(0);
+var Modal = __webpack_require__(3);
+var Icon = __webpack_require__(4);
+var MovieItem = __webpack_require__(6);
 
-var eventHub = __webpack_require__(3);
+var eventHub = __webpack_require__(2);
 
 module.exports = Vue.component('MovieInfo', {
   props: ['name'],
@@ -13799,15 +13878,14 @@ module.exports = Vue.component('MovieInfo', {
   watch: {
     /* Caso já esteja montado e a prop muda */
     name: function name(val) {
-      this.getMovieInfo();
-      // TODO
+      this.getInfo();
     }
   },
   mounted: function mounted() {
-    this.getMovieInfo(this.name); /* Faz outra busca caso o param da url mude*/
+    this.getInfo(this.name); /* Faz outra busca caso o param da url mude*/
   },
   methods: {
-    getMovieInfo: function getMovieInfo() {
+    getInfo: function getInfo() {
       var _this = this;
 
       eventHub.$once("movie-info", function (data) {
@@ -13820,20 +13898,140 @@ module.exports = Vue.component('MovieInfo', {
       eventHub.$emit("navigate-back");
     }
   },
-  template: '\n    <div class="movie-info">\n      <Modal title="Filme">\n        <div slot="content">\n          <div class="columns" v-if="result">\n            <div class="column col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">\n              <Poster :src="result.poster" :alt="result.show_title" />\n            </div>\n            <div class="column col-xs-12 col-sm-12 col-md-9 col-lg-9 col-xl-9">\n              <h2>{{result.show_title}} ({{result.release_year}})</h2>\n              <h4 v-if="result.director">Dirigido por: <span class="director">{{result.director}}</span></h4>\n              <h4>Avalia\xE7\xE3o: {{result.rating}}</h4>\n              <h4>Enredo</h4>\n              <p>{{result.summary}}</p>\n              <h4>Cast</h4>\n              <p>{{result.show_cast}}</p>\n            </div>\n          </div>\n        </div>\n        <div slot="footer">\n          <button @click.prevent.stop="dismiss" class="btn btn-primary">\n            <Icon type="icon-arrow-left" /> voltar\n          </button>\n        </div>\n      </Modal>\n    </div>\n  '
+  template: '\n    <div class="movie-info">\n      <Modal title="Filme">\n        <div slot="content" v-if="result">\n          <MovieItem :info="result"/>\n        </div>\n        <div slot="footer">\n          <button @click.prevent.stop="dismiss" class="btn btn-primary">\n            <Icon type="icon-arrow-left" /> fechar\n          </button>\n        </div>\n      </Modal>\n    </div>\n  '
 });
 
 /***/ }),
-/* 19 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Vue = __webpack_require__(1);
+var Vue = __webpack_require__(0);
 
-var eventHub = __webpack_require__(3);
-var NetflixAPI = __webpack_require__(20);
+module.exports = Vue.component('Poster', {
+  props: ['alt', 'src'],
+  data: function data() {
+    return {
+      hasFailed: false
+    };
+  },
+  methods: {
+    handleError: function handleError() {
+      this.hasFailed = true;
+    }
+  },
+  template: '\n  <div class="poster">\n    <img :src="src" :alt="alt" class="poster" @error="handleError" v-if="!hasFailed"/>\n    <div v-if="hasFailed" class="failed"></div>\n  </div>\n  '
+});
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Vue = __webpack_require__(0);
+var Modal = __webpack_require__(3);
+var Icon = __webpack_require__(4);
+var MovieItem = __webpack_require__(6);
+
+var eventHub = __webpack_require__(2);
+var sortOnYear = __webpack_require__(8);
+
+module.exports = Vue.component('MovieInfo', {
+  props: ['name'],
+  data: function data() {
+    return {
+      result: null
+    };
+  },
+  watch: {
+    /* Caso já esteja montado e a prop muda */
+    name: function name(val) {
+      this.getInfo();
+    }
+  },
+  mounted: function mounted() {
+    this.getInfo(this.name); /* Faz outra busca caso o param da url mude*/
+  },
+  methods: {
+    getInfo: function getInfo() {
+      var _this = this;
+
+      eventHub.$once("director-info", function (data) {
+        _this.result = data.result.sort(sortOnYear);
+      });
+
+      eventHub.$emit("get-director-info", { name: this.name });
+    },
+    dismiss: function dismiss() {
+      eventHub.$emit("navigate-back");
+    }
+  },
+  template: '\n    <div class="director-info">\n      <Modal :title="\'Diretor: \' + name">\n        <div slot="content">\n          <div v-if="result">\n            <MovieItem :info="info" v-for="info in result" :key="info.show_id"/>\n          </div>\n        </div>\n        <div slot="footer">\n          <button @click.prevent.stop="dismiss" class="btn btn-primary">\n            <Icon type="icon-arrow-left" /> fechar\n          </button>\n        </div>\n      </Modal>\n    </div>\n  '
+});
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Vue = __webpack_require__(0);
+var Modal = __webpack_require__(3);
+var Icon = __webpack_require__(4);
+var MovieItem = __webpack_require__(6);
+
+var eventHub = __webpack_require__(2);
+var sortOnYear = __webpack_require__(8);
+
+module.exports = Vue.component('MovieInfo', {
+  props: ['name'],
+  data: function data() {
+    return {
+      result: null
+    };
+  },
+  watch: {
+    /* Caso já esteja montado e a prop muda */
+    name: function name(val) {
+      this.getInfo();
+    }
+  },
+  mounted: function mounted() {
+    this.getInfo(this.name); /* Faz outra busca caso o param da url mude*/
+  },
+  methods: {
+    getInfo: function getInfo() {
+      var _this = this;
+
+      eventHub.$once("actor-info", function (data) {
+        _this.result = data.result.sort(sortOnYear);
+      });
+
+      eventHub.$emit("get-actor-info", { name: this.name });
+    },
+    dismiss: function dismiss() {
+      eventHub.$emit("navigate-back");
+    }
+  },
+  template: '\n    <div class="actor-info">\n      <Modal :title="\'Ator: \' + name">\n        <div slot="content" v-if="result">\n          <MovieItem :info="info" v-for="info in result" :key="info.show_id"/>\n        </div>\n        <div slot="footer">\n          <button @click.prevent.stop="dismiss" class="btn btn-primary">\n            <Icon type="icon-arrow-left" /> fechar\n          </button>\n        </div>\n      </Modal>\n    </div>\n  '
+});
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Vue = __webpack_require__(0);
+
+var eventHub = __webpack_require__(2);
+var NetflixAPI = __webpack_require__(25);
 
 /*
 Escuta os eventos:
@@ -13895,7 +14093,7 @@ module.exports = new Vue({
 });
 
 /***/ }),
-/* 20 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13905,7 +14103,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var axios = __webpack_require__(21);
+var axios = __webpack_require__(26);
 
 var apiURL = 'https://netflixroulette.net/api/api.php';
 
@@ -13949,22 +14147,22 @@ module.exports = function () {
 }();
 
 /***/ }),
-/* 21 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(22);
+module.exports = __webpack_require__(27);
 
 /***/ }),
-/* 22 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var utils = __webpack_require__(0);
-var bind = __webpack_require__(7);
-var Axios = __webpack_require__(24);
-var defaults = __webpack_require__(5);
+var utils = __webpack_require__(1);
+var bind = __webpack_require__(9);
+var Axios = __webpack_require__(29);
+var defaults = __webpack_require__(7);
 
 /**
  * Create an instance of Axios
@@ -13997,15 +14195,15 @@ axios.create = function create(instanceConfig) {
 };
 
 // Expose Cancel & CancelToken
-axios.Cancel = __webpack_require__(11);
-axios.CancelToken = __webpack_require__(38);
-axios.isCancel = __webpack_require__(10);
+axios.Cancel = __webpack_require__(13);
+axios.CancelToken = __webpack_require__(43);
+axios.isCancel = __webpack_require__(12);
 
 // Expose all/spread
 axios.all = function all(promises) {
   return Promise.all(promises);
 };
-axios.spread = __webpack_require__(39);
+axios.spread = __webpack_require__(44);
 
 module.exports = axios;
 
@@ -14014,7 +14212,7 @@ module.exports.default = axios;
 
 
 /***/ }),
-/* 23 */
+/* 28 */
 /***/ (function(module, exports) {
 
 /*!
@@ -14041,18 +14239,18 @@ function isSlowBuffer (obj) {
 
 
 /***/ }),
-/* 24 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var defaults = __webpack_require__(5);
-var utils = __webpack_require__(0);
-var InterceptorManager = __webpack_require__(33);
-var dispatchRequest = __webpack_require__(34);
-var isAbsoluteURL = __webpack_require__(36);
-var combineURLs = __webpack_require__(37);
+var defaults = __webpack_require__(7);
+var utils = __webpack_require__(1);
+var InterceptorManager = __webpack_require__(38);
+var dispatchRequest = __webpack_require__(39);
+var isAbsoluteURL = __webpack_require__(41);
+var combineURLs = __webpack_require__(42);
 
 /**
  * Create a new instance of Axios
@@ -14134,13 +14332,13 @@ module.exports = Axios;
 
 
 /***/ }),
-/* 25 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var utils = __webpack_require__(0);
+var utils = __webpack_require__(1);
 
 module.exports = function normalizeHeaderName(headers, normalizedName) {
   utils.forEach(headers, function processHeader(value, name) {
@@ -14153,13 +14351,13 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
 
 
 /***/ }),
-/* 26 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var createError = __webpack_require__(9);
+var createError = __webpack_require__(11);
 
 /**
  * Resolve or reject a Promise based on response status.
@@ -14186,7 +14384,7 @@ module.exports = function settle(resolve, reject, response) {
 
 
 /***/ }),
-/* 27 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14214,13 +14412,13 @@ module.exports = function enhanceError(error, config, code, request, response) {
 
 
 /***/ }),
-/* 28 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var utils = __webpack_require__(0);
+var utils = __webpack_require__(1);
 
 function encode(val) {
   return encodeURIComponent(val).
@@ -14289,13 +14487,13 @@ module.exports = function buildURL(url, params, paramsSerializer) {
 
 
 /***/ }),
-/* 29 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var utils = __webpack_require__(0);
+var utils = __webpack_require__(1);
 
 /**
  * Parse headers into an object
@@ -14333,13 +14531,13 @@ module.exports = function parseHeaders(headers) {
 
 
 /***/ }),
-/* 30 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var utils = __webpack_require__(0);
+var utils = __webpack_require__(1);
 
 module.exports = (
   utils.isStandardBrowserEnv() ?
@@ -14408,7 +14606,7 @@ module.exports = (
 
 
 /***/ }),
-/* 31 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14451,13 +14649,13 @@ module.exports = btoa;
 
 
 /***/ }),
-/* 32 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var utils = __webpack_require__(0);
+var utils = __webpack_require__(1);
 
 module.exports = (
   utils.isStandardBrowserEnv() ?
@@ -14511,13 +14709,13 @@ module.exports = (
 
 
 /***/ }),
-/* 33 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var utils = __webpack_require__(0);
+var utils = __webpack_require__(1);
 
 function InterceptorManager() {
   this.handlers = [];
@@ -14570,16 +14768,16 @@ module.exports = InterceptorManager;
 
 
 /***/ }),
-/* 34 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var utils = __webpack_require__(0);
-var transformData = __webpack_require__(35);
-var isCancel = __webpack_require__(10);
-var defaults = __webpack_require__(5);
+var utils = __webpack_require__(1);
+var transformData = __webpack_require__(40);
+var isCancel = __webpack_require__(12);
+var defaults = __webpack_require__(7);
 
 /**
  * Throws a `Cancel` if cancellation has been requested.
@@ -14656,13 +14854,13 @@ module.exports = function dispatchRequest(config) {
 
 
 /***/ }),
-/* 35 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var utils = __webpack_require__(0);
+var utils = __webpack_require__(1);
 
 /**
  * Transform the data for a request or a response
@@ -14683,7 +14881,7 @@ module.exports = function transformData(data, headers, fns) {
 
 
 /***/ }),
-/* 36 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14704,7 +14902,7 @@ module.exports = function isAbsoluteURL(url) {
 
 
 /***/ }),
-/* 37 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14725,13 +14923,13 @@ module.exports = function combineURLs(baseURL, relativeURL) {
 
 
 /***/ }),
-/* 38 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Cancel = __webpack_require__(11);
+var Cancel = __webpack_require__(13);
 
 /**
  * A `CancelToken` is an object that can be used to request cancellation of an operation.
@@ -14789,7 +14987,7 @@ module.exports = CancelToken;
 
 
 /***/ }),
-/* 39 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14823,20 +15021,20 @@ module.exports = function spread(callback) {
 
 
 /***/ }),
-/* 40 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Vue = __webpack_require__(1);
+var Vue = __webpack_require__(0);
 
 module.exports = Vue.component('SearchBar', {
   props: ['onSearch'],
   data: function data() {
     return {
       type: "actor",
-      text: "Robert De Niro"
+      text: ""
     };
   },
   methods: {
@@ -14848,7 +15046,7 @@ module.exports = Vue.component('SearchBar', {
 });
 
 /***/ }),
-/* 41 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14857,107 +15055,12 @@ module.exports = Vue.component('SearchBar', {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var Vue = __webpack_require__(1);
-var Modal = __webpack_require__(2);
+var Vue = __webpack_require__(0);
+var Modal = __webpack_require__(3);
 
 exports.default = Vue.component('ProgressWait', {
   props: ['title'],
   template: '\n    <Modal>\n      <div slot="content">\n        <p>{{title}}</p>\n        <div class="loading"></div>\n      </div>\n    </Modal>\n  '
-});
-
-/***/ }),
-/* 42 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var Vue = __webpack_require__(1);
-var Modal = __webpack_require__(2);
-var Icon = __webpack_require__(6);
-var MovieItem = __webpack_require__(43);
-
-var eventHub = __webpack_require__(3);
-
-module.exports = Vue.component('MovieInfo', {
-  props: ['name'],
-  data: function data() {
-    return {
-      result: null
-    };
-  },
-  watch: {
-    /* Caso já esteja montado e a prop muda */
-    name: function name(val) {
-      this.getInfo();
-      // TODO
-    }
-  },
-  mounted: function mounted() {
-    this.getInfo(this.name); /* Faz outra busca caso o param da url mude*/
-  },
-  methods: {
-    getInfo: function getInfo() {
-      var _this = this;
-
-      eventHub.$once("director-info", function (data) {
-        _this.result = data.result;
-      });
-
-      eventHub.$emit("get-director-info", { name: this.name });
-    },
-    getMovieInfo: function getMovieInfo(title) {
-      eventHub.$emit("get-movie-info", { title: title });
-    },
-    dismiss: function dismiss() {
-      eventHub.$emit("navigate-back");
-    }
-  },
-  template: '\n    <div class="director-info">\n      <Modal title="Diretor">\n        <div slot="content">\n          <div v-if="result">\n            <h2>{{name}}</h2>\n            <div v-for="info in result">\n              <MovieItem :info="info" :onClick="getMovieInfo"/>\n            </div>\n          </div>\n        </div>\n        <div slot="footer">\n          <button @click.prevent.stop="dismiss" class="btn btn-primary">\n            <Icon type="icon-arrow-left" /> voltar\n          </button>\n        </div>\n      </Modal>\n    </div>\n  '
-});
-
-/***/ }),
-/* 43 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var Vue = __webpack_require__(1);
-var Poster = __webpack_require__(44);
-
-module.exports = Vue.component('MovieItem', {
-  props: ['info', 'onClick'],
-  methods: {
-    handleClick: function handleClick(title) {
-      if (this.onClick) this.onClick(title);
-    }
-  },
-  template: '\n  <div class="movie-item" @click="handleClick(info.show_title)">\n    <div class="columns">\n      <div class="column col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">\n        <Poster :src="info.poster" :alt="info.show_title" />\n      </div>\n      <div class="column col-xs-12 col-sm-12 col-md-9 col-lg-9 col-xl-9">\n        <h3>{{info.show_title}} ({{info.release_year}})</h3>\n        <h4>Avalia\xE7\xE3o: {{info.rating}}</h4>\n        <p>{{info.summary}}</p>\n      </div>\n    </div>\n  </div>\n  '
-});
-
-/***/ }),
-/* 44 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var Vue = __webpack_require__(1);
-
-module.exports = Vue.component('Poster', {
-  props: ['alt', 'src'],
-  data: function data() {
-    return {
-      hasFailed: false
-    };
-  },
-  methods: {
-    handleError: function handleError() {
-      this.hasFailed = true;
-    }
-  },
-  template: '\n  <div class="poster">\n    <img :src="src" :alt="alt" class="poster" @error="handleError" v-if="!hasFailed"/>\n    <div v-if="hasFailed" class="failed"></div>\n  </div>\n  '
 });
 
 /***/ })

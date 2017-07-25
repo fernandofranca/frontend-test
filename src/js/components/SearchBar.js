@@ -4,8 +4,8 @@ module.exports = Vue.component('SearchBar', {
   props: ['onSearch'],
   data: function () {
     return {
-      type:"title",
-      text:"Raging Bull",
+      type:"actor",
+      text:"",
     }
   },
   methods:{

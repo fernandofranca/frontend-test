@@ -4374,14 +4374,30 @@ code {
 h1, h2, h3, h4, h5, h6 {
   font-weight: bold; }
 
-.movie-info .director {
-  font-weight: normal; }
-.movie-info img.poster {
-  width: 100%;
-  height: auto; }
+.navbar {
+  margin-top: 2em;
+  /* TODO: TEMPORARIO */
+  background: #ccc;
+  padding: 1em; }
+  .navbar section a {
+    padding: 0.5em; }
 
-.movie-item .director {
-  font-weight: normal; }
+.movie-item {
+  margin-bottom: 2em; }
+  .movie-item .title {
+    margin-top: -6px; }
+  .movie-item .director {
+    font-weight: normal; }
+  .movie-item .director span.director {
+    cursor: pointer;
+    text-decoration: underline; }
+  .movie-item .cast .actor {
+    cursor: pointer;
+    text-decoration: underline; }
+  .movie-item .cast .actor + .actor::before {
+    content: "";
+    text-decoration: none;
+    padding-right: 1em; }
 
 .poster div.failed {
   width: 100%;
@@ -4395,13 +4411,6 @@ h1, h2, h3, h4, h5, h6 {
 body {
   font-size: 2em; }
 
-.app .navbar {
-  margin-top: 2em;
-  /* TEMPORARIO */
-  background: #ccc;
-  padding: 1em; }
-  .app .navbar section a {
-    padding: 0.5em; }
 .app .router-view {
   padding: 1em; }
 

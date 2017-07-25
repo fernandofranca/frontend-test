@@ -1,5 +1,27 @@
 .movie-item{
+  margin-bottom: 2em;
+
+  .title {
+    margin-top: -6px;
+  }
   .director {
     font-weight: normal;
+  }
+  .director {
+    span.director{
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  }
+  .cast {
+    .actor {
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .actor + .actor::before {
+      content:"";
+      text-decoration: none;
+      padding-right: 1em;
+    }
   }
 }

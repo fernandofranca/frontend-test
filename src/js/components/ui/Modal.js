@@ -1,13 +1,15 @@
 const Vue = require('vue');
 
-export default Vue.component('Modal', {
+module.exports = Vue.component('Modal', {
   props: ['title'],
   template: `
     <div class="modal active">
       <div class="modal-overlay"></div>
       <div class="modal-container">
         <div class="modal-header">
-          <div class="modal-title">{{title}}</div>
+          <div class="modal-title">
+            <h2>{{title}}</h2>
+          </div>
         </div>
         <div class="modal-body">
           <div class="content">

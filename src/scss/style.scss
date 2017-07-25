@@ -8,17 +8,6 @@ body {
 }
 
 .app{
-  .navbar {
-    margin-top: 2em; /* TEMPORARIO */
-    background: #ccc;
-    padding: 1em;
-
-    section{
-      a {
-        padding: 0.5em;
-      }
-    }
-  }
   .router-view{
     padding: 1em;
   }
